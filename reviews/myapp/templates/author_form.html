@@ -1,0 +1,84 @@
+<!-- templates/myapp/author_form.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if form.instance.pk %}Edit Author{% else %}Add Author{% endif %}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Arial', sans-serif;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .container {
+            margin-top: 2rem;
+            max-width: 600px;
+            background-color: #1e1e1e;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .form-control {
+            background-color: #2c2c2c;
+            border: 1px solid #444;
+            color: #e0e0e0;
+        }
+        .form-control:focus {
+            background-color: #2c2c2c;
+            color: #e0e0e0;
+            border-color: #555;
+            box-shadow: none;
+        }
+        .btn-outline-light {
+            border-color: #e0e0e0;
+            color: #e0e0e0;
+        }
+        .btn-outline-light:hover {
+            background-color: #e0e0e0;
+            color: #121212;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    {% include '_navbar.html' %}
+
+    <div class="container">
+        <h1 class="text-center mb-4">{% if form.instance.pk %}Edit Author{% else %}Add Author{% endif %}</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="btn-group">
+                <button type="submit" class="btn btn-success">{% if form.instance.pk %}Save Changes{% else %}Add Author{% endif %}</button>
+                <a href="{% url 'author_list' %}" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#id_date_of_birth').datepicker({
+                format: 'yyyy-mm-dd',
+                autoclose: true,
+                todayHighlight: true,
+                orientation: 'bottom auto'
+            });
+        });
+    </script>
+</body>
+</html>

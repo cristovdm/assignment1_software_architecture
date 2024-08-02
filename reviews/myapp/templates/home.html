@@ -1,0 +1,99 @@
+<!-- templates/myapp/home.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: 'Arial', sans-serif;
+    }
+    .navbar-brand {
+      font-weight: bold;
+    }
+    .jumbotron {
+      background: url('https://source.unsplash.com/1600x900/?books,library') no-repeat center center;
+      background-size: cover;
+      color: #ffffff;
+      text-shadow: 2px 2px 8px #000000;
+      padding-top: 6rem;
+      padding-bottom: 6rem;
+      margin-bottom: 0;
+    }
+    .jumbotron h1 {
+      font-size: 3rem;
+      font-weight: 700;
+    }
+    .jumbotron p {
+      font-size: 1.5rem;
+    }
+    .card {
+      background-color: #1e1e1e;
+      border: none;
+    }
+    .card-title {
+      color: #ffffff;
+    }
+    .btn-primary {
+      background-color: #0062cc;
+      border-color: #005cbf;
+    }
+    .btn-primary:hover {
+      background-color: #0056b3;
+      border-color: #004a9e;
+    }
+  </style>
+</head>
+<body>
+  {% include '_navbar.html' %}
+
+  <div class="jumbotron text-center">
+    <h1 class="display-4">Welcome to the Book Review App</h1>
+    <p class="lead">Discover and review your favorite books.</p>
+    <hr class="my-4">
+    <p>Explore our extensive collection of books and reviews.</p>
+    <a class="btn btn-primary btn-lg" href="/myapp/books/" role="button">Browse Books</a>
+  </div>
+
+  <div class="container my-5">
+    <h2 class="text-center my-4">Top Features</h2>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <h5 class="card-title">Browse Authors</h5>
+            <p class="card-text">Learn more about your favorite authors.</p>
+            <a href="/myapp/authors/" class="btn btn-primary">View Authors</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <h5 class="card-title">Read Reviews</h5>
+            <p class="card-text">Read reviews from other book enthusiasts.</p>
+            <a href="/myapp/reviews/" class="btn btn-primary">Read Reviews</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <h5 class="card-title">Track Sales</h5>
+            <p class="card-text">Keep track of book sales over the years.</p>
+            <a href="/myapp/sales/" class="btn btn-primary">View Sales</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
