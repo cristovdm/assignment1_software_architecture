@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review List</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Arial', sans-serif;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .container {
+            margin-top: 2rem;
+        }
+        .card {
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            margin-bottom: 1rem;
+        }
+        .card-title, .card-text {
+            color: #e0e0e0;
+        }
+        .btn-primary, .btn-success, .btn-danger {
+            margin-right: 0.5rem;
+        }
+        .btn-outline-light {
+            border-color: #e0e0e0;
+            color: #e0e0e0;
+        }
+        .btn-outline-light:hover {
+            background-color: #e0e0e0;
+            color: #121212;
+        }
+        .btn-create {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    {% include '_navbar.html' %}
+
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1>Review List</h1>
+            <a href="{% url 'review_create' %}" class="btn btn-success btn-create">Create Review</a>
+        </div>
+        <div class="row">
+            {% for review in object_list %}
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ review.book.name }}</h5>
+                            <p class="card-text">{{ review.review }}</p>
+                            <p class="card-text">Score: {{ review.score }}</p>
+                            <p class="card-text">Upvotes: {{ review.number_of_upvotes }}</p>
+                            <a href="{% url 'review_detail' review.pk %}" class="btn btn-outline-light">View</a>
+                            <a href="{% url 'review_update' review.pk %}" class="btn btn-primary">Edit</a>
+                            <a href="{% url 'review_delete' review.pk %}" class="btn btn-danger">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
