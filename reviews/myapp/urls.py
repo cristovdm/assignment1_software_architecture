@@ -8,8 +8,11 @@ urlpatterns = [
     path('authors/<int:pk>/update/', views.AuthorUpdateView.as_view(), name='author_update'),
     path('authors/<int:pk>/', views.AuthorDetailView.as_view(), name='author_detail'),
     
-
     path('books/', views.BookListView.as_view(), name='book_list'),
+    path('books/create/', views.BookCreateView.as_view(), name='book_create'),
+    path('books/<int:pk>/delete/', views.BookDeleteView.as_view(), name='book_delete'),
+    path('books/<int:pk>/update/', views.BookUpdateView.as_view(), name='book_update'),
+    path('books/<int:pk>/', views.BookDetailView.as_view(), name='book_detail'),
 
     path('reviews/', views.ReviewListView.as_view(), name='review_list'),
 
@@ -17,12 +20,6 @@ urlpatterns = [
 
 
     # Las de abajo todavía no son implementadas.
-
-    path('books/<int:pk>/', views.BookListView.as_view(), name='book_detail'),
-    path('books/create/', views.BookListView.as_view(), name='book_create'),
-    path('books/<int:pk>/update/', views.BookListView.as_view(), name='book_update'),
-    path('books/<int:pk>/delete/', views.BookListView.as_view(), name='book_delete'),
-
     
     path('reviews/<int:pk>/', views.BookListView.as_view(), name='review_detail'),
     path('reviews/create/', views.BookListView.as_view(), name='review_create'),

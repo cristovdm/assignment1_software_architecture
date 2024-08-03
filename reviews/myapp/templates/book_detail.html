@@ -1,0 +1,61 @@
+<!-- templates/myapp/author_detail.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Detail</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Arial', sans-serif;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .container {
+            margin-top: 2rem;
+            max-width: 800px;
+        }
+        .card {
+            background-color: #1e1e1e;
+            margin-bottom: 1rem;
+            border: 1px solid #333;
+        }
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .card-text {
+            margin-bottom: 0;
+        }
+        .btn-primary, .btn-danger, .btn-secondary {
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    {% include '_navbar.html' %}
+
+    <div class="container">
+        <h1 class="text-center mb-4">Book Detail</h1>
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">{{ book.name }}</h4>
+                <p class="card-text"><strong>Summary:</strong> {{ book.summary }}</p>
+                <p class="card-text"><strong>Date of Publication:</strong> {{ book.date_of_publication }}</p>
+                <p class="card-text"><strong>Number of Sales:</strong> {{ book.number_of_sales }}</p>
+                <p class="card-text"><strong>Author:</strong> {{ book.author }}</p>
+                <a href="{% url 'book_list' %}" class="btn btn-secondary">Back to List</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
