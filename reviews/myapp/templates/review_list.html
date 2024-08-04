@@ -58,7 +58,7 @@
                             <p class="card-text">{{ review.review }}</p>
                             <p class="card-text">Score: {{ review.score }}</p>
                             <p class="card-text">Upvotes: {{ review.number_of_upvotes }}</p>
-                            <a href="{% url 'review_detail' review.pk %}" class="btn btn-outline-light">View</a>
+                            <a href="{% url 'review_detail' review.pk %}" class="btn btn-secondary">View</a>
                             <a href="{% url 'review_update' review.pk %}" class="btn btn-primary">Edit</a>
                             <a href="{% url 'review_delete' review.pk %}" class="btn btn-danger">Delete</a>
                         </div>

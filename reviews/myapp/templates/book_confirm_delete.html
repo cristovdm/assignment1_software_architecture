@@ -41,8 +41,8 @@
         <p class="text-center">Are you sure you want to delete {{ object.name }}?</p>
         <form method="post" class="text-center">
             {% csrf_token %}
-            <button type="submit" class="btn btn-success">Yes, delete</button>
-            <a href="{% url 'book_list' %}" class="btn btn-danger">Cancel</a>
+            <button type="submit" class="btn btn-danger">Yes, delete</button>
+            <a href="{% url 'book_list' %}" class="btn btn-secondary">Cancel</a>
         </form>
     </div>
 

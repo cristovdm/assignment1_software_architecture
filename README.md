@@ -32,9 +32,12 @@ pip install -r requirements.txt
 
 ## ▶️ Start Server ▶️
 
-To start the server, run the following command according to your operating system:
+To start the server, run the following commands on the main folder:
 
 ```bash
+cd .\reviews\
+python manage.py makemigrations
+python manage.py migrate
 python manage.py runserver
 ```
 

@@ -1,0 +1,73 @@
+<!-- templates/myapp/author_statistics.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Author Statistics</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Arial', sans-serif;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .container {
+            margin-top: 2rem;
+        }
+        table {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+        }
+        th, td {
+            border-color: #333;
+        }
+    </style>
+</head>
+<body>
+    {% include '_navbar.html' %}
+
+    <div class="container">
+        <h1 class="text-center mb-4">Author Statistics</h1>
+        <table id="authorTable" class="table table-dark table-striped">
+            <thead>
+                <tr>
+                    <th>Author</th>
+                    <th>Number of Books</th>
+                    <th>Average Score</th>
+                    <th>Total Sales</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for author in authors %}
+                <tr>
+                    <td>{{ author.name }}</td>
+                    <td>{{ author.num_books }}</td>
+                    <td>{{ author.avg_score|default:"N/A" }}</td>
+                    <td>{{ author.total_sales|default:"N/A" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#authorTable').DataTable({
+                "paging": true,
+                "ordering": true,
+                "info": true
+            });
+        });
+    </script>
+</body>
+</html>

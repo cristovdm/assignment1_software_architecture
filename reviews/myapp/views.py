@@ -1,10 +1,9 @@
-from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from .models import Author, Book, Review, Sale
 from django.urls import reverse_lazy
-from .forms import AuthorForm, BookForm, ReviewForm
+from .forms import AuthorForm, BookForm, ReviewForm, SaleForm
+from django.db.models import Avg, Count, Sum
 
 def home(request):
     return render(request, 'home.html')
@@ -65,11 +64,22 @@ class BookDeleteView(DeleteView):
 class ReviewListView(ListView):
     model = Review
     template_name = 'review_list.html'
-    
+
 class ReviewCreateView(CreateView):
     model = Review
     form_class = ReviewForm
     template_name = 'review_form.html'
+    success_url = reverse_lazy('review_list')
+
+class ReviewDetailView(DetailView):
+    model = Review
+    template_name = 'review_detail.html'
+
+class ReviewUpdateView(UpdateView):
+    model = Review
+    form_class = ReviewForm
+    template_name = 'review_form.html'
+    success_url = reverse_lazy('review_list')
 
 class ReviewDeleteView(DeleteView):
     model = Review
@@ -81,3 +91,31 @@ class SaleListView(ListView):
     model = Sale
     template_name = 'sale_list.html'
 
+class SaleCreateView(CreateView):
+    model = Sale
+    form_class = SaleForm
+    template_name = 'sale_form.html'
+    success_url = reverse_lazy('sale_list')
+
+class SaleDetailView(DetailView):
+    model = Sale
+    template_name = 'sale_detail.html'
+
+class SaleUpdateView(UpdateView):
+    model = Sale
+    form_class = SaleForm
+    template_name = 'sale_form.html'
+    success_url = reverse_lazy('sale_list')
+
+class SaleDeleteView(DeleteView):
+    model = Sale
+    template_name = 'sale_confirm_delete.html'
+    success_url = reverse_lazy('sale_list')
+
+def author_statistics(request):
+    authors = Author.objects.annotate(
+        num_books=Count('book'),
+        avg_score=Avg('book__review__score'),
+        total_sales=Sum('book__sale__sales')
+    )
+    return render(request, 'author_statistics.html', {'authors': authors})

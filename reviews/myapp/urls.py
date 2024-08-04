@@ -15,20 +15,16 @@ urlpatterns = [
     path('books/<int:pk>/', views.BookDetailView.as_view(), name='book_detail'),
 
     path('reviews/', views.ReviewListView.as_view(), name='review_list'),
-
-    path('sales/', views.SaleListView.as_view(), name='sale_list'),
-
-
-    # Las de abajo todavía no son implementadas.
-    
-    path('reviews/<int:pk>/', views.BookListView.as_view(), name='review_detail'),
     path('reviews/create/', views.ReviewCreateView.as_view(), name='review_create'),
-    path('reviews/<int:pk>/update/', views.BookListView.as_view(), name='review_update'),
+    path('reviews/<int:pk>/', views.ReviewDetailView.as_view(), name='review_detail'),
+    path('reviews/<int:pk>/update/', views.ReviewUpdateView.as_view(), name='review_update'),
     path('reviews/<int:pk>/delete/', views.ReviewDeleteView.as_view(), name='review_delete'),
 
-    path('sales/', views.BookListView.as_view(), name='sale_list'),
-    path('sales/<int:pk>/', views.BookListView.as_view(), name='sale_detail'),
-    path('sales/create/', views.BookListView.as_view(), name='sale_create'),
-    path('sales/<int:pk>/update/', views.BookListView.as_view(), name='sale_update'),
-    path('sales/<int:pk>/delete/', views.BookListView.as_view(), name='sale_delete'),
+    path('sales/', views.SaleListView.as_view(), name='sale_list'),
+    path('sales/create/', views.SaleCreateView.as_view(), name='sale_create'),
+    path('sales/<int:pk>/', views.SaleDetailView.as_view(), name='sale_detail'),
+    path('sales/<int:pk>/update/', views.SaleUpdateView.as_view(), name='sale_update'),
+    path('sales/<int:pk>/delete/', views.SaleDeleteView.as_view(), name='sale_delete'),
+
+    path('author_statistics/', views.author_statistics, name='author_statistics'),
 ]

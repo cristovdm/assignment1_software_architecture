@@ -57,7 +57,7 @@
                             <h5 class="card-title">{{ sale.book.name }}</h5>
                             <p class="card-text">Year: {{ sale.year }}</p>
                             <p class="card-text">Sales: {{ sale.sales }}</p>
-                            <a href="{% url 'sale_detail' sale.pk %}" class="btn btn-outline-light">View</a>
+                            <a href="{% url 'sale_detail' sale.pk %}" class="btn btn-secondary">View</a>
                             <a href="{% url 'sale_update' sale.pk %}" class="btn btn-primary">Edit</a>
                             <a href="{% url 'sale_delete' sale.pk %}" class="btn btn-danger">Delete</a>
                         </div>
