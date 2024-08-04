@@ -22,9 +22,9 @@ urlpatterns = [
     # Las de abajo todavía no son implementadas.
     
     path('reviews/<int:pk>/', views.BookListView.as_view(), name='review_detail'),
-    path('reviews/create/', views.BookListView.as_view(), name='review_create'),
+    path('reviews/create/', views.ReviewCreateView.as_view(), name='review_create'),
     path('reviews/<int:pk>/update/', views.BookListView.as_view(), name='review_update'),
-    path('reviews/<int:pk>/delete/', views.BookListView.as_view(), name='review_delete'),
+    path('reviews/<int:pk>/delete/', views.ReviewDeleteView.as_view(), name='review_delete'),
 
     path('sales/', views.BookListView.as_view(), name='sale_list'),
     path('sales/<int:pk>/', views.BookListView.as_view(), name='sale_detail'),

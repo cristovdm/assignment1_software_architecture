@@ -1,10 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from .models import Author, Book, Review, Sale
 from django.urls import reverse_lazy
-from .forms import AuthorForm, BookForm
+from .forms import AuthorForm, BookForm, ReviewForm
 
 def home(request):
     return render(request, 'home.html')
@@ -65,7 +65,16 @@ class BookDeleteView(DeleteView):
 class ReviewListView(ListView):
     model = Review
     template_name = 'review_list.html'
+    
+class ReviewCreateView(CreateView):
+    model = Review
+    form_class = ReviewForm
+    template_name = 'review_form.html'
 
+class ReviewDeleteView(DeleteView):
+    model = Review
+    template_name = 'review_confirm_delete.html'
+    success_url = reverse_lazy('review_list')
 
 # Sales CRUD (Por el momento solo tiene la Lista)
 class SaleListView(ListView):

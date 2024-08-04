@@ -1,6 +1,6 @@
 # myapp/forms.py
 from django import forms
-from .models import Author, Book
+from .models import Author, Book, Review
 
 class AuthorForm(forms.ModelForm):
     class Meta:
@@ -19,3 +19,12 @@ class BookForm(forms.ModelForm):
             'date_of_publication': forms.DateInput(attrs={'type': 'date'}),
         }
 
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['book', 'review', 'score']
+        widgets = {
+            'book': forms.Select(attrs={'class': 'form-control'}),
+            'review': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'score': forms.Select(attrs={'class': 'form-control'}),
+        }

@@ -18,10 +18,13 @@ class Book(models.Model):
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
 
 class Review(models.Model):
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, blank=True, null=True)
     review = models.TextField()
     score = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
-    number_of_upvotes = models.IntegerField()
+    number_of_upvotes = models.IntegerField(default=0)
+    
+    def __str__(self):
+        return f"Review for {self.book} with score {self.score}"
 
 class Sale(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
