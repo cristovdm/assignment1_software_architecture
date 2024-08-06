@@ -1,0 +1,64 @@
+<!-- templates/myapp/author_statistics.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Reviews</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Arial', sans-serif;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .container {
+            margin-top: 2rem;
+        }
+        table {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+        }
+        th, td {
+            border-color: #333;
+        }
+    </style>
+</head>
+<body>
+    {% include '_navbar.html' %}
+
+    <div class="container">
+        <h1 class="text-center mb-4">Top Reviews</h1>
+        <table id="authorTable" class="table table-dark table-striped">
+            <thead>
+                <tr>
+                    <th>Book</th>
+                    <th>Average Score</th>
+                    <th>Most popular review</th>
+                    <th>Least popular review</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in sorted_books %}
+                <tr>
+                    <td>{{ book.0 }}</td>
+                    <td>{{ book.1.average_score }}</td>
+                    <td>{{ book.1.max_upvote_review.0 }} <br><br> <strong>Number of upvotes: {{ book.1.max_upvote_review.1 }}</strong></td>
+                    <td>{{ book.1.min_upvote_review.0 }} <br><br> <strong>Number of upvotes: {{ book.1.min_upvote_review.1 }}</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+</body>
+</html>

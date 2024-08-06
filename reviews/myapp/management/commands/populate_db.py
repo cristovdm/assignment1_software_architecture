@@ -20,8 +20,8 @@ class Command(BaseCommand):
             )
 
         # Create Books
-        authors = Author.objects.all()
         for _ in range(300):
+            authors = Author.objects.all()
             book = Book.objects.create(
                 name=fake.sentence(nb_words=3),
                 summary=fake.text(),

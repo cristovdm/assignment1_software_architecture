@@ -119,3 +119,36 @@ def author_statistics(request):
         total_sales=Sum('book__sale__sales')
     )
     return render(request, 'author_statistics.html', {'authors': authors})
+
+def top_rated_books(request):
+    reviews = list(Review.objects.all())
+    data = {}
+
+    for review in reviews:
+        book = review.book.name
+        if book not in data:
+            data[book] = {
+                "average_score" : review.score, 
+                "count" : 1,
+                "max_upvote_review" : (review.review, review.number_of_upvotes),
+                "min_upvote_review" : (review.review, review.number_of_upvotes),
+                }
+        else:
+            data[book]["average_score"] += review.score 
+            data[book]["count"] += 1
+
+            upvotes = review.number_of_upvotes
+
+            if upvotes > data[book]["max_upvote_review"][1]:
+                data[book]["max_upvote_review"] = (review.review, review.number_of_upvotes)
+
+            if upvotes < data[book]["min_upvote_review"][1]:
+                data[book]["min_upvote_review"] = (review.review, review.number_of_upvotes)
+
+    for book in data:
+        data[book]["average_score"] /= data[book]["count"]
+    
+    sorted_books = sorted(data.items(), key=lambda x : x[1]["average_score"], reverse=True)
+    sorted_books = sorted_books[0:10]
+
+    return render(request, 'top_rated_books.html', {'sorted_books': sorted_books})

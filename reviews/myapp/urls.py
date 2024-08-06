@@ -27,4 +27,5 @@ urlpatterns = [
     path('sales/<int:pk>/delete/', views.SaleDeleteView.as_view(), name='sale_delete'),
 
     path('author_statistics/', views.author_statistics, name='author_statistics'),
+    path('top_rated_books/', views.top_rated_books, name='author_statistics'),
 ]

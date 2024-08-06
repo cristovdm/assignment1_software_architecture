@@ -49,7 +49,7 @@ class Migration(migrations.Migration):
                 ('review', models.TextField()),
                 ('score', models.IntegerField(choices=[(1, 1), (2, 2), (3, 3), (4, 4), (5, 5)])),
                 ('number_of_upvotes', models.IntegerField(default=0)),
-                ('book', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='myapp.book')),
+                ('book', models.ForeignKey(blank=True, default=None, on_delete=django.db.models.deletion.CASCADE, to='myapp.book')),
             ],
         ),
     ]
