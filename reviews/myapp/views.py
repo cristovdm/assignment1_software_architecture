@@ -152,3 +152,20 @@ def top_rated_books(request):
     sorted_books = sorted_books[0:10]
 
     return render(request, 'top_rated_books.html', {'sorted_books': sorted_books})
+
+# * A table that shows the top 50 selling books of all time, 
+# showing their total sales for the book, total sales 
+# for the author, and if the book was the on the top 5 selling 
+# books the year of its publication.
+def sale_statistics(request):
+    all_sales = Sale.objects.all()
+    total_sales_per_book = {}
+    for sale in all_sales:
+        if sale.book.name in total_sales_per_book:
+            total_sales_per_book[sale.book.name] += sale.sales
+        else:
+            total_sales_per_book[sale.book.name] = sale.sales
+    total_sales_per_book = dict(sorted(total_sales_per_book.items(), key=lambda item: item[1]))
+    return render(request, 'sale_statistics.html', {'sales': total_sales_per_book})
+    
+
