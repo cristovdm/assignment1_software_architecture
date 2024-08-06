@@ -25,6 +25,7 @@ urlpatterns = [
     path('sales/<int:pk>/', views.SaleDetailView.as_view(), name='sale_detail'),
     path('sales/<int:pk>/update/', views.SaleUpdateView.as_view(), name='sale_update'),
     path('sales/<int:pk>/delete/', views.SaleDeleteView.as_view(), name='sale_delete'),
+    path('sales/statistics/', views.sale_statistics, name='sale_statistics'),
 
     path('author_statistics/', views.author_statistics, name='author_statistics'),
 ]
