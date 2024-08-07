@@ -204,3 +204,17 @@ def sale_statistics(request):
     return render(request, 'sale_statistics.html', {'sales_statistics': top50_statistics})
     
 
+def search_window(request):
+    return render(request, 'search_window.html', {'books_found': []})
+
+def search_books(request):
+    form = request.POST
+    search_string = form.get("search_string")
+    search_string = search_string.split()
+    all_books = Book.objects.all()
+    books_found = []
+    for word in search_string:
+        for book in all_books: 
+            if word.lower() in book.summary.lower():
+                books_found.append(book)
+    return render(request, 'search_window.html', {'books_found': books_found})

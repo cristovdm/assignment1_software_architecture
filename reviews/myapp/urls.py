@@ -29,4 +29,7 @@ urlpatterns = [
 
     path('author_statistics/', views.author_statistics, name='author_statistics'),
     path('top_rated_books/', views.top_rated_books, name='author_statistics'),
+    
+    path('search_window/', views.search_window, name='search_window'),
+    path('search_books/', views.search_books, name="search_books")
 ]
