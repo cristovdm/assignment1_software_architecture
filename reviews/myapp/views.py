@@ -160,12 +160,47 @@ def top_rated_books(request):
 def sale_statistics(request):
     all_sales = Sale.objects.all()
     total_sales_per_book = {}
+    sales_per_year = {}
+    sales_per_author = {}
     for sale in all_sales:
-        if sale.book.name in total_sales_per_book:
-            total_sales_per_book[sale.book.name] += sale.sales
+        if sale.book in total_sales_per_book:
+            total_sales_per_book[sale.book] += sale.sales
         else:
-            total_sales_per_book[sale.book.name] = sale.sales
-    total_sales_per_book = dict(sorted(total_sales_per_book.items(), key=lambda item: item[1]))
-    return render(request, 'sale_statistics.html', {'sales': total_sales_per_book})
+            total_sales_per_book[sale.book] = sale.sales
+        if sale.year in sales_per_year:
+            if sale.book.name in sales_per_year[sale.year]:
+                sales_per_year[sale.year][sale.book] += sale.sales
+            else:
+                sales_per_year[sale.year][sale.book] = sale.sales
+        else:
+            sales_per_year[sale.year] = {sale.book: sale.sales}
+    top_5_selling_books_per_year = {}
+    for year in sales_per_year:
+        sorted_sales_per_book_per_year = dict(sorted(sales_per_year[year].items(), key=lambda item: item[1], reverse=True))
+        for i, book in enumerate(sorted_sales_per_book_per_year):
+            if i < 5:
+                if year not in top_5_selling_books_per_year:
+                    top_5_selling_books_per_year[year] = [book]
+                else:
+                    top_5_selling_books_per_year[year].append(book)          
+    total_sales_per_book = dict(sorted(total_sales_per_book.items(), key=lambda item: item[1], reverse=True))
+    for book in total_sales_per_book:
+        if book.author in sales_per_author:
+            sales_per_author[book.author] += total_sales_per_book[book]
+        else:
+            sales_per_author[book.author] = total_sales_per_book[book]
+    top50_statistics = {}
+    for i, book in enumerate(total_sales_per_book):
+        if i < 50:
+            top50_statistics[book] = [total_sales_per_book[book], sales_per_author[book.author]]
+            year_of_publication = book.get_year_of_publishing()
+            if year_of_publication in top_5_selling_books_per_year:
+                if book in top_5_selling_books_per_year[year_of_publication]:
+                    top50_statistics[book].append(True)
+                else:
+                    top50_statistics[book].append(False)
+            else:
+                top50_statistics[book].append(False)
+    return render(request, 'sale_statistics.html', {'sales_statistics': top50_statistics})
     
 

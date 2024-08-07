@@ -19,6 +19,9 @@ class Book(models.Model):
     def __str__(self):
         return self.name
 
+    def get_year_of_publishing(self):
+        return self.date_of_publication.year
+
 class Review(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, blank=True)
     review = models.TextField()
