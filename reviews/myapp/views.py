@@ -2,8 +2,9 @@ from django.shortcuts import render
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from .models import Author, Book, Review, Sale
 from django.urls import reverse_lazy
-from .forms import AuthorForm, BookForm, ReviewForm, SaleForm
+from .forms import AuthorForm, BookForm, ReviewForm, SaleForm, SearchForm
 from django.db.models import Avg, Count, Sum
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 def home(request):
     return render(request, 'home.html')
@@ -202,19 +203,41 @@ def sale_statistics(request):
             else:
                 top50_statistics[book].append(False)
     return render(request, 'sale_statistics.html', {'sales_statistics': top50_statistics})
-    
 
 def search_window(request):
     return render(request, 'search_window.html', {'books_found': []})
 
 def search_books(request):
-    form = request.POST
-    search_string = form.get("search_string")
-    search_string = search_string.split()
-    all_books = Book.objects.all()
+    form = SearchForm(request.POST or None)
+    search_string = ""
     books_found = []
-    for word in search_string:
-        for book in all_books: 
-            if word.lower() in book.summary.lower():
-                books_found.append(book)
-    return render(request, 'search_window.html', {'books_found': books_found})
+    if form.is_valid():
+        search_string = form.cleaned_data.get("search_string")
+        search_words = search_string.split()
+        all_books = Book.objects.all()
+        for word in search_words:
+            books_found += all_books.filter(summary__icontains=word)
+        books_found = list(set(books_found))
+    elif request.GET.get('search_string'):
+        search_string = request.GET.get('search_string')
+        search_words = search_string.split()
+        all_books = Book.objects.all()
+
+        for word in search_words:
+            books_found += all_books.filter(summary__icontains=word)
+        books_found = list(set(books_found))
+    paginator = Paginator(books_found, 10)
+    page = request.GET.get('page', 1)
+    try:
+        books = paginator.page(page)
+    except PageNotAnInteger:
+        books = paginator.page(1)
+    except EmptyPage:
+        books = paginator.page(paginator.num_pages)
+
+    return render(request, 'search_window.html', {
+        'form': form, 
+        'books_found': books, 
+        'search_string': search_string,
+        'search_words': search_string.split()
+    })

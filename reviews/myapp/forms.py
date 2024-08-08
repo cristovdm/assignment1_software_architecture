@@ -28,3 +28,6 @@ class SaleForm(forms.ModelForm):
     class Meta:
         model = Sale
         fields = ['book', 'year', 'sales']
+
+class SearchForm(forms.Form):
+    search_string = forms.CharField(max_length=255, required=True, label='Search Books')
