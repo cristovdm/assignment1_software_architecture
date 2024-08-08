@@ -18,28 +18,26 @@
             margin-top: 2rem;
             max-width: 900px;
         }
-        .card {
+        .table {
             background-color: #1e1e1e;
-            margin-bottom: 1rem;
             border: 1px solid #333;
+            color: #e0e0e0;
         }
-        .card-body {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .table thead th {
+            background-color: #333;
+            border-color: #444;
         }
-        .card-text {
-            margin-bottom: 0;
+        .table tbody td {
+            border-color: #444;
         }
-        .btn-primary, .btn-danger, .btn-secondary {
-            margin-left: 0.5rem;
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: #2c2c2c;
         }
-        .btn-create {
-            float: right;
-            margin-bottom: 1rem;
+        .status-green {
+            color: green;
         }
-        .book-list {
-            margin-top: 6rem; /* Increased margin to push down the first card */
+        .status-red {
+            color: red;
         }
     </style>
 </head>
@@ -48,25 +46,37 @@
 
     <div class="container">
         <h1 class="text-center mb-4">Top 50 Sales</h1>
-        <div class="book-list">
-            {% for book, sales_stats in sales_statistics.items %}
-                <div class="card">
-                    <div class="card-body">
-                        <div class="card-text">
-                            <strong>{{ book.name }}</strong><br>
-                            <small>Author: {{ book.author.name }}</small><br>
-                            <small>Author's Total Sales: {{ sales_stats.1 }}</small><br>
-                            <small>Published: {{ book.date_of_publication }}</small><br>
-                            <small>Book's Total Sales: {{ sales_stats.0 }}</small><br>
-                            {% if sales_stats.2 %}
-                                <small style="color: green;">On the top 5 books with more sale on its publishing year</small>
-                            {% else %}
-                                <small style="color: red;">Not on the top 5 books with more sale on its publishing year</small>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Book Name</th>
+                        <th>Author</th>
+                        <th>Author's Total Sales</th>
+                        <th>Published</th>
+                        <th>Book's Total Sales</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for book, sales_stats in sales_statistics.items %}
+                        <tr>
+                            <td><strong>{{ book.name }}</strong></td>
+                            <td>{{ book.author.name }}</td>
+                            <td>{{ sales_stats.1 }}</td>
+                            <td>{{ book.date_of_publication }}</td>
+                            <td>{{ sales_stats.0 }}</td>
+                            <td>
+                                {% if sales_stats.2 %}
+                                    <span class="status-green">On the top 5 books with more sale on its publishing year</span>
+                                {% else %}
+                                    <span class="status-red">Not on the top 5 books with more sale on its publishing year</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 
