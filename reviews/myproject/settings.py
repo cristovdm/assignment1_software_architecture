@@ -80,7 +80,7 @@ DATABASES = {
         'NAME': 'reviews_db',
         'ENFORCE_SCHEMA': False,
         'CLIENT': {
-            'host': 'mongodb://localhost:27017/',
+            'host': 'mongodb://mongodb:27017/',
         }
     }
 }

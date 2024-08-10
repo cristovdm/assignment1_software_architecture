@@ -1,0 +1,16 @@
+FROM python:3.9
+
+# Set the working directory
+WORKDIR /reviews
+
+# Copy the requirements file and install the dependencies
+COPY ../requirements.txt /reviews/
+RUN pip install --no-cache-dir -r /reviews/requirements.txt
+
+# Copy the entire application
+COPY reviews/ /reviews/
+
+# Set the PYTHONPATH to ensure all modules can be found
+ENV PYTHONPATH=/reviews
+
+CMD ["python manage.py makemigrations && python manage.py migrate && python manage.py runserver"]
