@@ -9,8 +9,8 @@ services:
     networks:
       - my_network
     volumes:
-      - db:/data/db
-
+      - db2:/data/db
+  
   reviews:
     build:
       context: .
@@ -23,13 +23,13 @@ services:
       - "8000:8000"
     tty: true
     stdin_open: true
-    environment:
-      - DOCKER_CONTAINER=true
     extra_hosts:
       - "mongoservice:172.17.0.1"
+    environment:
+      HOSTNAME: mongodb
 
 networks:
   my_network:
 
 volumes:
-  db:
+  db2:
