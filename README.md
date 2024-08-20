@@ -2,6 +2,18 @@
 
 This sample application allows users to simulate the management of book reviews, with various specific requirements and functionalities that need to be implemented. This belongs to Assignment 1 of the Software Architecture course.
 
+## Docker Compose
+
+The application has a docker-compose file to compose docker containers and run it on docker. To do this, all that needs to be done is run the following command on a terminal in the main path:
+
+```bash
+docker-compose up --build
+```
+
+That will build the containers and once they are up the app is ready to go.
+
+# To run locally:
+
 ## 📦 Dependency Installation 📦
 
 As a suggestion, it is recommended to be in a virtual environment for greater security. To do this, you must execute the following commands in the main path:
