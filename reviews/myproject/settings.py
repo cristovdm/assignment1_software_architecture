@@ -135,3 +135,9 @@ CACHES = {
         'LOCATION': 'memcached:11211',
     }
 }
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'https://localhost:9200'
+    },
+}

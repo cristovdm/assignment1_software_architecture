@@ -1,4 +1,7 @@
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from .documents import BookDocument
 
 class Author(models.Model):
     name = models.CharField(max_length=100)
@@ -21,6 +24,15 @@ class Book(models.Model):
 
     def get_year_of_publishing(self):
         return self.date_of_publication.year
+    
+
+@receiver(post_save, sender=Book)
+def index_book(sender, instance, **kwargs):
+    book_document = BookDocument(
+        meta={'id': instance.id},
+        summary=instance.summary
+    )
+    book_document.save()
 
 class Review(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, blank=True)

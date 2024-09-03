@@ -6,6 +6,13 @@ from .forms import AuthorForm, BookForm, ReviewForm, SaleForm, SearchForm
 from django.db.models import Avg, Count, Sum, Max, Min
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.cache import cache
+from elasticsearch_dsl import Q
+from elasticsearch_dsl.connections import connections
+from elasticsearch_dsl import Search
+from .forms import SearchForm
+from .documents import BookDocument
+
+connections.create_connection(hosts=['https://localhost:9200'])
 
 def home(request):
     return render(request, 'home.html')
@@ -224,27 +231,32 @@ def sale_statistics(request):
 
 def search_window(request):
     return render(request, 'search_window.html', {'books_found': []})
-
+    
 def search_books(request):
     form = SearchForm(request.POST or None)
     search_string = ""
-    books_found = []
+    books = []
     if form.is_valid():
         search_string = form.cleaned_data.get("search_string")
         search_words = search_string.split()
-        all_books = Book.objects.all()
+        s = Search(index="books")
         for word in search_words:
-            books_found += all_books.filter(summary__icontains=word)
-        books_found = list(set(books_found))
+            q = Q("match", summary=word)
+            s = s.query(q)
+        response = s.execute()
+        books = [hit.meta.id for hit in response]
+
     elif request.GET.get('search_string'):
         search_string = request.GET.get('search_string')
         search_words = search_string.split()
-        all_books = Book.objects.all()
-
+        s = Search(index="books")
         for word in search_words:
-            books_found += all_books.filter(summary__icontains=word)
-        books_found = list(set(books_found))
-    paginator = Paginator(books_found, 10)
+            q = Q("match", summary=word)
+            s = s.query(q)
+        response = s.execute()
+        books = [hit.meta.id for hit in response]
+
+    paginator = Paginator(books, 10)
     page = request.GET.get('page', 1)
     try:
         books = paginator.page(page)

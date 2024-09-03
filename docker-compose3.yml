@@ -1,0 +1,46 @@
+version: '3'
+services:
+  mongodb:
+    image: mongo:latest
+    ports:
+      - '27017:27017'
+    restart: always
+    networks:
+      - my_network
+    volumes:
+      - db2:/data/db
+  
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.5.0
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+    networks:
+      - my_network
+  
+  reviews:
+    build:
+      context: .
+      dockerfile: reviews/Dockerfile-reviews
+    networks:
+      - my_network
+    depends_on:
+      - mongodb
+      - elasticsearch
+    ports:
+      - "8000:8000"
+    tty: true
+    stdin_open: true
+    extra_hosts:
+      - "mongoservice:172.17.0.1"
+    environment:
+      HOSTNAME: mongodb
+
+    
+
+networks:
+  my_network:
+
+volumes:
+  db2:
