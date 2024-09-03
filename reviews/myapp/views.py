@@ -3,8 +3,9 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, D
 from .models import Author, Book, Review, Sale
 from django.urls import reverse_lazy
 from .forms import AuthorForm, BookForm, ReviewForm, SaleForm, SearchForm
-from django.db.models import Avg, Count, Sum
+from django.db.models import Avg, Count, Sum, Max, Min
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.core.cache import cache
 
 def home(request):
     return render(request, 'home.html')
@@ -121,7 +122,8 @@ def author_statistics(request):
     )
     return render(request, 'author_statistics.html', {'authors': authors})
 
-def top_rated_books(request):
+
+def get_top_rated_books(request):
     reviews = list(Review.objects.all())
     data = {}
 
@@ -151,6 +153,22 @@ def top_rated_books(request):
     
     sorted_books = sorted(data.items(), key=lambda x : x[1]["average_score"], reverse=True)
     sorted_books = sorted_books[0:10]
+    return sorted_books
+
+
+def top_rated_books(request):
+    cache_key = '123_sorted_books' 
+    cache_time = 86400  
+    sorted_books = None
+    
+    if cache:
+        sorted_books = cache.get(cache_key)
+    
+    if not sorted_books:
+        sorted_books = get_top_rated_books(request)
+        
+        if cache:
+            cache.set(cache_key, sorted_books, cache_time)
 
     return render(request, 'top_rated_books.html', {'sorted_books': sorted_books})
 
