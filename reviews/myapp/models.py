@@ -28,11 +28,13 @@ class Book(models.Model):
 
 @receiver(post_save, sender=Book)
 def index_book(sender, instance, **kwargs):
+    print(f"Indexing book: {instance.name}")
     book_document = BookDocument(
         meta={'id': instance.id},
         summary=instance.summary
     )
     book_document.save()
+
 
 class Review(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, blank=True)

@@ -6,13 +6,10 @@ from .forms import AuthorForm, BookForm, ReviewForm, SaleForm, SearchForm
 from django.db.models import Avg, Count, Sum, Max, Min
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.cache import cache
-from elasticsearch_dsl import Q
-from elasticsearch_dsl.connections import connections
-from elasticsearch_dsl import Search
+from elasticsearch_dsl import Search, Q
+from .elasticsearch_utils import get_elasticsearch_connection
 from .forms import SearchForm
 from .documents import BookDocument
-
-connections.create_connection(hosts=['https://localhost:9200'])
 
 def home(request):
     return render(request, 'home.html')
@@ -236,25 +233,32 @@ def search_books(request):
     form = SearchForm(request.POST or None)
     search_string = ""
     books = []
+    books_found = []
+
+    try:
+        es = get_elasticsearch_connection()
+        elasticsearch_available = True
+    except ConnectionError as e:
+        elasticsearch_available = False
+
     if form.is_valid():
         search_string = form.cleaned_data.get("search_string")
         search_words = search_string.split()
-        s = Search(index="books")
-        for word in search_words:
-            q = Q("match", summary=word)
-            s = s.query(q)
-        response = s.execute()
-        books = [hit.meta.id for hit in response]
 
-    elif request.GET.get('search_string'):
-        search_string = request.GET.get('search_string')
-        search_words = search_string.split()
-        s = Search(index="books")
-        for word in search_words:
-            q = Q("match", summary=word)
-            s = s.query(q)
-        response = s.execute()
-        books = [hit.meta.id for hit in response]
+        if elasticsearch_available:
+            s = Search(using=es, index="books")
+            for word in search_words:
+                q = Q("match", summary=word)
+                s = s.query(q)
+            response = s.execute()
+            book_ids = [hit.meta.id for hit in response]
+            books = Book.objects.filter(id__in=book_ids)
+
+        else:
+            all_books = Book.objects.all()
+            for word in search_words:
+                books_found += all_books.filter(summary__icontains=word)
+            books = list(set(books_found)) 
 
     paginator = Paginator(books, 10)
     page = request.GET.get('page', 1)

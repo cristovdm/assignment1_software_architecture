@@ -14,10 +14,13 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.5.0
     environment:
       - discovery.type=single-node
+      - ELASTIC_PASSWORD=SoftwareArchitecture2024
     ports:
       - "9200:9200"
+      - "9300:9300"
     networks:
       - my_network
+
   
   reviews:
     build:
@@ -36,8 +39,6 @@ services:
       - "mongoservice:172.17.0.1"
     environment:
       HOSTNAME: mongodb
-
-    
 
 networks:
   my_network:
