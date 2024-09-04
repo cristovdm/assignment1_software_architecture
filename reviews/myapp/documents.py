@@ -1,7 +1,13 @@
 from elasticsearch_dsl import Document, Text
-from myapp.elasticsearch_utils import get_elasticsearch_connection
+from myapp.elasticsearch_utils import get_elasticsearch_connection, initialize_elasticsearch_connection
 
-es = get_elasticsearch_connection()
+es = get_elasticsearch_connection() 
+if not es:
+    for i in range(3):
+        initialize_elasticsearch_connection() 
+        es = get_elasticsearch_connection()
+        if es:
+            break   
 
 class BookDocument(Document):
     summary = Text()

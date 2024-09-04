@@ -225,9 +225,9 @@ def sale_statistics(request):
 
 def search_window(request):
     return render(request, 'search_window.html', {'books_found': []})
-    
-initialize_elasticsearch_connection()
 
+initialize_elasticsearch_connection()    
+    
 def search_books(request):
     form = SearchForm(request.POST or None)
     search_string = ""
@@ -235,6 +235,13 @@ def search_books(request):
     books_found = []
 
     es = get_elasticsearch_connection() 
+    if not es:
+        for i in range(3):
+            initialize_elasticsearch_connection() 
+            es = get_elasticsearch_connection()
+            if es:
+                break   
+    
 
     if form.is_valid():
         search_string = form.cleaned_data.get("search_string")
@@ -249,6 +256,9 @@ def search_books(request):
                 s = s.query(q)
             response = s.execute()
             book_ids = [hit.meta.id for hit in response]
+            
+            print("USANDO ELASTICSEARCH")
+            
             books = Book.objects.filter(id__in=book_ids)
 
         else:  

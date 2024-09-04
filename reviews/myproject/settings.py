@@ -80,7 +80,7 @@ HOST = 'mongodb'
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': 'reviews_db',
+        'NAME': 'reviews_db2_2',
         'ENFORCE_SCHEMA': False,
         'CLIENT': {
             'host': f'mongodb://{HOST}:27017/',
