@@ -138,9 +138,9 @@ CACHES = {
 
 ELASTICSEARCH_DSL = {
     'default': {
-        'hosts': 'https://elasticsearch:9200',
+        'hosts': 'http://elasticsearch:9200',
         'http_auth': ('elastic', 'SoftwareArchitecture2024'),
-        'use_ssl': True,
+        'use_ssl': False,
         'verify_certs': False
     },
 }

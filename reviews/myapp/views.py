@@ -7,9 +7,10 @@ from django.db.models import Avg, Count, Sum, Max, Min
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.cache import cache
 from elasticsearch_dsl import Search, Q
-from .elasticsearch_utils import get_elasticsearch_connection
+from .elasticsearch_utils import get_elasticsearch_connection, initialize_elasticsearch_connection
 from .forms import SearchForm
 from .documents import BookDocument
+from .reindex_books import reindex_books
 
 def home(request):
     return render(request, 'home.html')
@@ -128,36 +129,32 @@ def author_statistics(request):
 
 
 def get_top_rated_books(request):
-    reviews = list(Review.objects.all())
-    data = {}
+    reviews = (
+        Review.objects.values('book__name')  
+        .annotate(
+            average_score=Avg('score'),
+            count=Count('id'),
+            max_upvote_review=Max('number_of_upvotes'),
+            min_upvote_review=Min('number_of_upvotes'),
+        )
+        .order_by('-average_score')[:10]  
+    )
 
+    data = []
     for review in reviews:
-        book = review.book.name
-        if book not in data:
-            data[book] = {
-                "average_score" : review.score, 
-                "count" : 1,
-                "max_upvote_review" : (review.review, review.number_of_upvotes),
-                "min_upvote_review" : (review.review, review.number_of_upvotes),
-                }
-        else:
-            data[book]["average_score"] += review.score 
-            data[book]["count"] += 1
+        max_review = Review.objects.filter(book__name=review['book__name'], number_of_upvotes=review['max_upvote_review']).first()
+        min_review = Review.objects.filter(book__name=review['book__name'], number_of_upvotes=review['min_upvote_review']).first()
 
-            upvotes = review.number_of_upvotes
+        data.append({
+            "book": review['book__name'],
+            "average_score": review['average_score'],
+            "count": review['count'],
+            "max_upvote_review": (max_review.review, max_review.number_of_upvotes) if max_review else ("", 0),
+            "min_upvote_review": (min_review.review, min_review.number_of_upvotes) if min_review else ("", 0),
+        })
 
-            if upvotes > data[book]["max_upvote_review"][1]:
-                data[book]["max_upvote_review"] = (review.review, review.number_of_upvotes)
-
-            if upvotes < data[book]["min_upvote_review"][1]:
-                data[book]["min_upvote_review"] = (review.review, review.number_of_upvotes)
-
-    for book in data:
-        data[book]["average_score"] /= data[book]["count"]
-    
-    sorted_books = sorted(data.items(), key=lambda x : x[1]["average_score"], reverse=True)
-    sorted_books = sorted_books[0:10]
-    return sorted_books
+    print("DATAA: ", data)
+    return data
 
 
 def top_rated_books(request):
@@ -229,23 +226,23 @@ def sale_statistics(request):
 def search_window(request):
     return render(request, 'search_window.html', {'books_found': []})
     
+initialize_elasticsearch_connection()
+
 def search_books(request):
     form = SearchForm(request.POST or None)
     search_string = ""
     books = []
     books_found = []
 
-    try:
-        es = get_elasticsearch_connection()
-        elasticsearch_available = True
-    except ConnectionError as e:
-        elasticsearch_available = False
+    es = get_elasticsearch_connection() 
 
     if form.is_valid():
         search_string = form.cleaned_data.get("search_string")
         search_words = search_string.split()
+        
+        reindex_books()
 
-        if elasticsearch_available:
+        if es: 
             s = Search(using=es, index="books")
             for word in search_words:
                 q = Q("match", summary=word)
@@ -254,7 +251,7 @@ def search_books(request):
             book_ids = [hit.meta.id for hit in response]
             books = Book.objects.filter(id__in=book_ids)
 
-        else:
+        else:  
             all_books = Book.objects.all()
             for word in search_words:
                 books_found += all_books.filter(summary__icontains=word)

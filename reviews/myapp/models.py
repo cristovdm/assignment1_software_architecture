@@ -18,22 +18,29 @@ class Book(models.Model):
     date_of_publication = models.DateField()
     number_of_sales = models.IntegerField()
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    indexed = models.BooleanField(default=False)  # Nuevo campo para rastrear la indexación
 
     def __str__(self):
         return self.name
 
     def get_year_of_publishing(self):
         return self.date_of_publication.year
-    
 
 @receiver(post_save, sender=Book)
 def index_book(sender, instance, **kwargs):
-    print(f"Indexing book: {instance.name}")
-    book_document = BookDocument(
-        meta={'id': instance.id},
-        summary=instance.summary
-    )
-    book_document.save()
+    try:
+        book_document = BookDocument(
+            meta={'id': instance.id},
+            summary=instance.summary
+        )
+        book_document.save()
+        instance.indexed = True 
+        instance.save(update_fields=['indexed'])
+        print(f"Libro indexado: {instance.name}")
+    except Exception as e:
+        print(f"Error al indexar {instance.name}: {str(e)}")
+        instance.indexed = False 
+        instance.save(update_fields=['indexed']) 
 
 
 class Review(models.Model):

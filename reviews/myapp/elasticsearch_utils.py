@@ -1,24 +1,31 @@
-# myapp/elasticsearch_utils.py
-
+import threading
 from elasticsearch import Elasticsearch
 from tenacity import retry, stop_after_attempt, wait_fixed
 import logging
 
-# Configurar logger para monitorear los reintentos
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+elasticsearch_connection = None  # Variable global para almacenar la conexión
 
-# Función con reintento para conectar a Elasticsearch
-@retry(stop=stop_after_attempt(5), wait=wait_fixed(5))  # Reintenta 5 veces con un tiempo de espera de 5 segundos
-def get_elasticsearch_connection():
-    logger.info("Intentando conectar a Elasticsearch...")
+def connect_to_elasticsearch():
+    global elasticsearch_connection
     es = Elasticsearch(
-        ['https://elasticsearch:9200'],
+        ['http://elasticsearch:9200'],
         http_auth=('elastic', 'SoftwareArchitecture2024'),
         verify_certs=False
     )
     if es.ping():
-        logger.info("Conexión a Elasticsearch exitosa!")
-        return es
+        elasticsearch_connection = es
     else:
-        raise ConnectionError("No se pudo conectar a Elasticsearch.")
+        elasticsearch_connection = None
+
+
+# Esta función inicializa el hilo que conecta a Elasticsearch
+def initialize_elasticsearch_connection():
+    thread = threading.Thread(target=connect_to_elasticsearch)
+    thread.start()
+    return thread
+
+
+# Función para obtener la conexión ya establecida o None si no está lista
+def get_elasticsearch_connection():
+    global elasticsearch_connection
+    return elasticsearch_connection

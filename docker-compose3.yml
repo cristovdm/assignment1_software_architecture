@@ -15,11 +15,16 @@ services:
     environment:
       - discovery.type=single-node
       - ELASTIC_PASSWORD=SoftwareArchitecture2024
+      - logger.org.elasticsearch=ERROR
+      - xpack.monitoring.templates.enabled=false
+      - bootstrap.memory_lock=true
     ports:
       - "9200:9200"
       - "9300:9300"
     networks:
       - my_network
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
 
   
   reviews:
@@ -45,3 +50,4 @@ networks:
 
 volumes:
   db2:
+  esdata:
