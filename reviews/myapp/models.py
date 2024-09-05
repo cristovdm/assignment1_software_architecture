@@ -9,6 +9,7 @@ class Author(models.Model):
     date_of_birth = models.DateField()
     country_of_origin = models.CharField(max_length=100)
     description = models.TextField()
+    image = models.ImageField(upload_to='authors/', null=True, blank=True)  # Nuevo campo para imagen
 
     def __str__(self):
         return self.name
@@ -19,16 +20,15 @@ class Book(models.Model):
     date_of_publication = models.DateField()
     number_of_sales = models.IntegerField()
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
-    indexed = models.BooleanField(default=False, null=True, blank=True) 
-
+    cover_image = models.ImageField(upload_to='books/', null=True, blank=True)  # Nuevo campo para imagen
+    indexed = models.BooleanField(default=False, null=True, blank=True)
+    
     def __str__(self):
         return self.name
 
     def get_year_of_publishing(self):
         return self.date_of_publication.year
-    
-    def set_indexed(self, state):
-        self.indexed = state
+
 
 @receiver(post_save, sender=Book)
 def index_book(sender, instance, created, **kwargs):

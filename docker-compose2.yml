@@ -36,7 +36,9 @@ services:
     extra_hosts:
       - "mongoservice:172.17.0.1"
     environment:
-      HOSTNAME: mongodb
+      - HOSTNAME=mongodb
+      - USE_REVERSE_PROXY=false
+      - USE_ELASTICSEARCH=false
 
     
 

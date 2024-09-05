@@ -9,8 +9,13 @@ from django.core.cache import cache
 from elasticsearch_dsl import Search, Q
 from .elasticsearch_utils import get_elasticsearch_connection, initialize_elasticsearch_connection
 from .forms import SearchForm
-from .documents import BookDocument
 from .reindex_books import reindex_books
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+import os
+
+USE_ELASTICSEARCH = os.getenv('USE_ELASTICSEARCH', False)
+
 
 def home(request):
     return render(request, 'home.html')
@@ -45,6 +50,10 @@ class AuthorDeleteView(DeleteView):
 class BookListView(ListView):
     model = Book
     template_name = 'book_list.html'
+    
+    @method_decorator(cache_page(60 * 15))  # Caché de 15 minutos
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 class BookCreateView(CreateView):
     model = Book
@@ -226,7 +235,8 @@ def sale_statistics(request):
 def search_window(request):
     return render(request, 'search_window.html', {'books_found': []})
 
-initialize_elasticsearch_connection()    
+if USE_ELASTICSEARCH:
+    initialize_elasticsearch_connection()    
     
 def search_books(request):
     form = SearchForm(request.POST or None)
@@ -234,13 +244,14 @@ def search_books(request):
     books = []
     books_found = []
 
-    es = get_elasticsearch_connection() 
-    if not es:
-        for i in range(3):
-            initialize_elasticsearch_connection() 
-            es = get_elasticsearch_connection()
-            if es:
-                break   
+    if USE_ELASTICSEARCH:
+        es = get_elasticsearch_connection() 
+        if not es:
+            for i in range(3):
+                initialize_elasticsearch_connection() 
+                es = get_elasticsearch_connection()
+                if es:
+                    break   
     
 
     if form.is_valid():
@@ -249,17 +260,18 @@ def search_books(request):
         
         reindex_books()
 
-        if es: 
-            s = Search(using=es, index="books")
-            for word in search_words:
-                q = Q("match", summary=word)
-                s = s.query(q)
-            response = s.execute()
-            book_ids = [hit.meta.id for hit in response]
-            
-            print("USANDO ELASTICSEARCH")
-            
-            books = Book.objects.filter(id__in=book_ids)
+        if USE_ELASTICSEARCH:
+            if es: 
+                s = Search(using=es, index="books")
+                for word in search_words:
+                    q = Q("match", summary=word)
+                    s = s.query(q)
+                response = s.execute()
+                book_ids = [hit.meta.id for hit in response]
+                
+                print("USANDO ELASTICSEARCH")
+                
+                books = Book.objects.filter(id__in=book_ids)
 
         else:  
             all_books = Book.objects.all()
