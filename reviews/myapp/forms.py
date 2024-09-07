@@ -5,7 +5,7 @@ from .models import Author, Book, Review, Sale
 class AuthorForm(forms.ModelForm):
     class Meta:
         model = Author
-        fields = ['name', 'date_of_birth', 'country_of_origin', 'description']
+        fields = ['name', 'date_of_birth', 'country_of_origin', 'description', 'image']
         widgets = {
             'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
         }

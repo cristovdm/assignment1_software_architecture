@@ -56,6 +56,10 @@
                     <div class="card-body">
                         <div class="card-text">
                             <strong>{{ author.name }}</strong> ({{ author.date_of_birth }} - {{ author.country_of_origin }})
+                            <br>
+                            {% if author.image %}
+                                <img src="{{ author.image.url }}" alt="{{ author.name }}" style="width: 200px; height: 200px;">
+                            {% endif %}
                         </div>
                         <div>
                             <a href="{% url 'author_detail' author.pk %}" class="btn btn-secondary">View</a>
