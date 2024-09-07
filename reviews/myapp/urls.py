@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from myproject.settings import MEDIA_URL, MEDIA_ROOT
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('authors/', views.AuthorListView.as_view(), name='author_list'),

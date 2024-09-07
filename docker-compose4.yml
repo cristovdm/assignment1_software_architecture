@@ -1,19 +1,23 @@
 version: '3'
 services:
-
   traefik:
     image: traefik:v2.5
     command:
-      - "--api.insecure=true"  # Esto habilita el panel de control de Traefik (opcional)
-      - "--providers.docker=true"  # Permite que Traefik detecte automáticamente los servicios de Docker
-      - "--entrypoints.web.address=:80"  # Define el punto de entrada para HTTP
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
     ports:
-      - "80:80"  # Puerto para acceder a las aplicaciones a través del proxy inverso
-      - "8080:8080"  # Puerto para acceder al panel de Traefik (opcional)
+      - "80:80"
+      - "8080:8080"
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"  # Para que Traefik pueda interactuar con los contenedores de Docker
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - ./media:/media
     networks:
       - my_network
+    labels:
+      - "traefik.http.routers.media.rule=PathPrefix(`/media/`)"
+      - "traefik.http.services.media.loadbalancer.server.port=80"
+      - "traefik.http.services.media.loadbalancer.server.path=/media"
 
   mongodb:
     image: mongo:latest
@@ -44,8 +48,8 @@ services:
       - USE_REVERSE_PROXY=true
       - USE_ELASTICSEARCH=false
     labels:
-      - "traefik.http.routers.reviews.rule=Host(`app.localhost`)"  # Dominio personalizado para la app
-      - "traefik.http.services.reviews.loadbalancer.server.port=8000"  # Puerto interno donde corre la app
+      - "traefik.http.routers.reviews.rule=Host(`app.localhost`)"
+      - "traefik.http.services.reviews.loadbalancer.server.port=8000" 
 
 networks:
   my_network:

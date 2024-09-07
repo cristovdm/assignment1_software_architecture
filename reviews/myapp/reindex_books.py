@@ -17,7 +17,6 @@ def reindex_books():
 
     for book in books_to_reindex:
         if es:
-            print("LLEGO A REINDEXAR")
             try:
                 book_document = BookDocument(
                     meta={'id': book.id},
