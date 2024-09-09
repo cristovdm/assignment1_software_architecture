@@ -1,0 +1,106 @@
+version: '3'
+services:
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - '27017:27017'
+    restart: always
+    networks:
+      - my_network
+    volumes:
+      - db2:/data/db
+  
+  reviews:
+    build:
+      context: .
+      dockerfile: reviews/Dockerfile-reviews
+    networks:
+      - my_network
+    depends_on:
+      mongodb:
+        condition: service_started
+      memcached:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy 
+      traefik:
+        condition: service_started 
+    ports:
+      - "8000:8000"
+    tty: true
+    stdin_open: true
+    extra_hosts:
+      - "mongoservice:172.17.0.1"
+    environment:
+      - HOSTNAME=mongodb
+      - USE_REVERSE_PROXY=false
+      - USE_ELASTICSEARCH=false
+  
+  memcached:
+    image: bitnami/memcached:1.5.22
+    volumes:
+      - db2:/data/db 
+    networks:
+      - my_network 
+    ports:
+      - "11211:11211" 
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "11211"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.5.0
+    environment:
+      - discovery.type=single-node
+      - ELASTIC_PASSWORD=SoftwareArchitecture2024
+      - logger.org.elasticsearch=ERROR
+      - xpack.monitoring.templates.enabled=false
+      - bootstrap.memory_lock=true
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - my_network
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD", "curl", "-s", "http://localhost:9200/_cluster/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 20
+  
+  traefik:
+    image: traefik:v2.5
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - ./media:/media
+    networks:
+      - my_network
+    labels:
+      # Router para media
+      - "traefik.http.routers.media.rule=PathPrefix(`/media/`)"
+      - "traefik.http.services.media.loadbalancer.server.port=80"
+      
+      # Middleware para media
+      - "traefik.http.routers.media.middlewares=media-strip"
+      - "traefik.http.middlewares.media-strip.stripPrefix.prefixes=/media"
+
+      # Router para app
+      - "traefik.http.routers.app.rule=Host(`app.localhost`)"
+      - "traefik.http.services.app.loadbalancer.server.port=8000"
+networks:
+  my_network:
+
+volumes:
+  db2:
+  esdata:

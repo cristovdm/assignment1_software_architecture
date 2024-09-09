@@ -10,8 +10,6 @@ from elasticsearch_dsl import Search, Q
 from .elasticsearch_utils import get_elasticsearch_connection, initialize_elasticsearch_connection
 from .forms import SearchForm
 from .reindex_books import reindex_books
-from django.views.decorators.cache import cache_page
-from django.utils.decorators import method_decorator
 import os
 
 USE_ELASTICSEARCH = os.getenv('USE_ELASTICSEARCH', False)
@@ -51,14 +49,26 @@ class BookListView(ListView):
     model = Book
     template_name = 'book_list.html'
     
-    @method_decorator(cache_page(60 * 15))  # Caché de 15 minutos
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
-
+    cache_key = '123_all_books'  # Llave única para el caché
+    cache_time = 60 * 15  # 15 minutos de caché
+    
+    def get_queryset(self):
+        cached_books = cache.get(self.cache_key)
+        
+        if cached_books:
+            return cached_books
+        
+        queryset = Book.objects.all() 
+        
+        cache.set(self.cache_key, queryset, self.cache_time)
+        
+        return queryset
+    
 class BookCreateView(CreateView):
     model = Book
     form_class = BookForm
     template_name = 'book_form.html'
+    cache.delete('123_all_books')
     success_url = reverse_lazy('book_list')
 
 class BookDetailView(DetailView):
@@ -69,11 +79,13 @@ class BookUpdateView(UpdateView):
     model = Book
     form_class = BookForm
     template_name = 'book_form.html'
+    cache.delete('123_all_books')
     success_url = reverse_lazy('book_list')
 
 class BookDeleteView(DeleteView):
     model = Book
     template_name = 'book_confirm_delete.html'
+    cache.delete('123_all_books')
     success_url = reverse_lazy('book_list')
 
 # Reviews CRUD (Por el momento solo tiene la Lista)
