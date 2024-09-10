@@ -19,6 +19,11 @@ services:
       - my_network 
     ports:
       - "11211:11211" 
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "11211"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
   
   reviews:
     build:
@@ -27,8 +32,10 @@ services:
     networks:
       - my_network
     depends_on:
-      - mongodb
-      - memcached
+      mongodb:
+        condition: service_started
+      memcached:
+        condition: service_healthy
     ports:
       - "8000:8000"
     tty: true
@@ -39,8 +46,6 @@ services:
       - HOSTNAME=mongodb
       - USE_REVERSE_PROXY=false
       - USE_ELASTICSEARCH=false
-
-    
 
 networks:
   my_network:

@@ -25,6 +25,11 @@ services:
       - my_network
     volumes:
       - esdata:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD", "curl", "-s", "http://localhost:9200/_cluster/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
 
   
   reviews:
@@ -34,8 +39,10 @@ services:
     networks:
       - my_network
     depends_on:
-      - mongodb
-      - elasticsearch
+      mongodb: 
+        condition: service_started
+      elasticsearch:
+        condition: service_healthy 
     ports:
       - "8000:8000"
     tty: true

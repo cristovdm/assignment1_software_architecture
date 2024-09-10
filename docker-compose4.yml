@@ -36,7 +36,10 @@ services:
     networks:
       - my_network
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_started
+      traefik:
+        condition: service_started
     ports:
       - "8000:8000"
     tty: true
