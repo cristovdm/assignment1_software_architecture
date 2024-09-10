@@ -38,7 +38,7 @@ services:
       - USE_ELASTICSEARCH=false
   
   memcached:
-    image: bitnami/memcached:1.5.22
+    image: bitnami/memcached:latest
     volumes:
       - db2:/data/db 
     networks:

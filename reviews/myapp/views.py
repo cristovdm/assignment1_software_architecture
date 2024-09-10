@@ -49,8 +49,8 @@ class BookListView(ListView):
     model = Book
     template_name = 'book_list.html'
     
-    cache_key = '123_all_books'  # Llave única para el caché
-    cache_time = 60 * 15  # 15 minutos de caché
+    cache_key = '123_all_books' 
+    cache_time = 60 * 15 
     
     def get_queryset(self):
         cached_books = cache.get(self.cache_key)
@@ -68,8 +68,12 @@ class BookCreateView(CreateView):
     model = Book
     form_class = BookForm
     template_name = 'book_form.html'
-    cache.delete('123_all_books')
     success_url = reverse_lazy('book_list')
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        cache._cache.flush_all()
+        return response
 
 class BookDetailView(DetailView):
     model = Book
@@ -79,14 +83,22 @@ class BookUpdateView(UpdateView):
     model = Book
     form_class = BookForm
     template_name = 'book_form.html'
-    cache.delete('123_all_books')
     success_url = reverse_lazy('book_list')
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        cache._cache.flush_all()
+        return response
 
 class BookDeleteView(DeleteView):
     model = Book
     template_name = 'book_confirm_delete.html'
-    cache.delete('123_all_books')
     success_url = reverse_lazy('book_list')
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        cache._cache.flush_all()
+        return response
 
 # Reviews CRUD (Por el momento solo tiene la Lista)
 class ReviewListView(ListView):
