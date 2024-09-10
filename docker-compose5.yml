@@ -25,7 +25,7 @@ services:
       elasticsearch:
         condition: service_healthy 
       traefik:
-        condition: service_started 
+        condition: service_started
     ports:
       - "8000:8000"
     tty: true
@@ -34,8 +34,11 @@ services:
       - "mongoservice:172.17.0.1"
     environment:
       - HOSTNAME=mongodb
-      - USE_REVERSE_PROXY=false
-      - USE_ELASTICSEARCH=false
+      - USE_REVERSE_PROXY=true
+      - USE_ELASTICSEARCH=true
+    labels:
+      - "traefik.http.routers.reviews.rule=Host(`app.localhost`)"
+      - "traefik.http.services.reviews.loadbalancer.server.port=8000" 
   
   memcached:
     image: bitnami/memcached:latest
@@ -68,7 +71,7 @@ services:
       - esdata:/usr/share/elasticsearch/data
     healthcheck:
       test: ["CMD", "curl", "-s", "http://localhost:9200/_cluster/health"]
-      interval: 20s
+      interval: 10s
       timeout: 10s
       retries: 20
   
@@ -87,17 +90,11 @@ services:
     networks:
       - my_network
     labels:
-      # Router para media
       - "traefik.http.routers.media.rule=PathPrefix(`/media/`)"
       - "traefik.http.services.media.loadbalancer.server.port=80"
-      
-      # Middleware para media
-      - "traefik.http.routers.media.middlewares=media-strip"
-      - "traefik.http.middlewares.media-strip.stripPrefix.prefixes=/media"
+      - "traefik.http.services.media.loadbalancer.server.path=/media"
 
-      # Router para app
-      - "traefik.http.routers.app.rule=Host(`app.localhost`)"
-      - "traefik.http.services.app.loadbalancer.server.port=8000"
+
 networks:
   my_network:
 
