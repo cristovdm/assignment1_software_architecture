@@ -287,13 +287,18 @@ def search_books(request):
         if USE_ELASTICSEARCH:
             if es: 
                 s = Search(using=es, index="books")
+                
+                should_clauses = []
                 for word in search_words:
                     q = Q("match", summary=word)
-                    s = s.query(q)
-                response = s.execute()
-                book_ids = [hit.meta.id for hit in response]
+                    should_clauses.append(q)
                 
-                print("USANDO ELASTICSEARCH")
+                bool_query = Q("bool", should=should_clauses, minimum_should_match=1)
+        
+                s = s.query(bool_query)
+                response = s.execute()
+                
+                book_ids = [hit.meta.id for hit in response]
                 
                 books = Book.objects.filter(id__in=book_ids)
 
