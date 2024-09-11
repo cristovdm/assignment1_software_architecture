@@ -3,7 +3,7 @@ from .documents import BookDocument
 from .elasticsearch_utils import get_elasticsearch_connection, initialize_elasticsearch_connection
 
 def reindex_books():
-    # Buscar todos los libros que no han sido indexados
+
     books = Book.objects.all()
     books_to_reindex = [book for book in books if book.indexed is False]
 

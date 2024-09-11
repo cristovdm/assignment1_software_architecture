@@ -3,6 +3,14 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .documents import BookDocument
 from .elasticsearch_utils import get_elasticsearch_connection, initialize_elasticsearch_connection
+import os
+
+USE_ELASTICSEARCH = os.getenv('USE_ELASTICSEARCH', False)
+
+if USE_ELASTICSEARCH == "false":
+    USE_ELASTICSEARCH = False
+if USE_ELASTICSEARCH == "true":
+    USE_ELASTICSEARCH = True
 
 class Author(models.Model):
     name = models.CharField(max_length=100)
@@ -37,30 +45,29 @@ def index_book(sender, instance, created, **kwargs):
     if not created:
         return
 
-    es = get_elasticsearch_connection() 
-    if not es:
-        for i in range(3):
-            initialize_elasticsearch_connection() 
-            es = get_elasticsearch_connection()
-            if es:
-                break   
-    if es:
-        try:
-            book_document = BookDocument(
-                meta={'id': instance.id},
-                summary=instance.summary
-            )
-            book_document.save()
-            instance.indexed = True
-            instance.save(update_fields=['indexed'])
-            print(f"Libro indexado: {instance.name}")
-        except Exception as e:
-            print(f"Error al indexar {instance.name}: {str(e)}")
+    if USE_ELASTICSEARCH:
+        es = get_elasticsearch_connection() 
+        if not es:
+            for i in range(3):
+                initialize_elasticsearch_connection() 
+                es = get_elasticsearch_connection()
+                if es:
+                    break   
+        if es:
+            try:
+                book_document = BookDocument(
+                    meta={'id': instance.id},
+                    summary=instance.summary
+                )
+                book_document.save()
+                instance.indexed = True
+                instance.save(update_fields=['indexed'])
+            except Exception as e:
+                instance.indexed = False
+                instance.save(update_fields=['indexed'])
+        else:
             instance.indexed = False
             instance.save(update_fields=['indexed'])
-    else:
-        instance.indexed = False
-        instance.save(update_fields=['indexed'])
 
 
 class Review(models.Model):

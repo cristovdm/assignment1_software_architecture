@@ -29,6 +29,7 @@ services:
       - HOSTNAME=mongodb
       - USE_REVERSE_PROXY=false
       - USE_ELASTICSEARCH=false
+      - USE_MEMCACHED=false
 
 networks:
   my_network:

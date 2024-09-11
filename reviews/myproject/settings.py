@@ -130,12 +130,22 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
-        'LOCATION': 'memcached:11211',
+USE_MEMCACHED = os.getenv('USE_MEMCACHED', False)
+
+if USE_MEMCACHED == "false":
+    USE_MEMCACHED = False
+if USE_MEMCACHED == "true":
+    USE_MEMCACHED = True
+
+if USE_MEMCACHED:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
+            'LOCATION': 'memcached:11211', 
+        }
     }
-}
+
+
 
 ELASTICSEARCH_DSL = {
     'default': {

@@ -14,6 +14,10 @@ import os
 
 USE_ELASTICSEARCH = os.getenv('USE_ELASTICSEARCH', False)
 
+if USE_ELASTICSEARCH == "false":
+    USE_ELASTICSEARCH = False
+if USE_ELASTICSEARCH == "true":
+    USE_ELASTICSEARCH = True
 
 def home(request):
     return render(request, 'home.html')
@@ -52,15 +56,19 @@ class BookListView(ListView):
     cache_key = '123_all_books' 
     cache_time = 60 * 15 
     
+    cached_books = None
+    
     def get_queryset(self):
-        cached_books = cache.get(self.cache_key)
+        if cache:
+            cached_books = cache.get(self.cache_key)
         
         if cached_books:
             return cached_books
         
         queryset = Book.objects.all() 
         
-        cache.set(self.cache_key, queryset, self.cache_time)
+        if cache:
+            cache.set(self.cache_key, queryset, self.cache_time)
         
         return queryset
     
@@ -72,7 +80,8 @@ class BookCreateView(CreateView):
     
     def form_valid(self, form):
         response = super().form_valid(form)
-        cache._cache.flush_all()
+        if cache:
+            cache._cache.flush_all()
         return response
 
 class BookDetailView(DetailView):
@@ -87,7 +96,8 @@ class BookUpdateView(UpdateView):
     
     def form_valid(self, form):
         response = super().form_valid(form)
-        cache._cache.flush_all()
+        if cache:
+            cache._cache.flush_all()
         return response
 
 class BookDeleteView(DeleteView):
@@ -97,7 +107,8 @@ class BookDeleteView(DeleteView):
     
     def form_valid(self, form):
         response = super().form_valid(form)
-        cache._cache.flush_all()
+        if cache:
+            cache._cache.flush_all()
         return response
 
 # Reviews CRUD (Por el momento solo tiene la Lista)
@@ -186,7 +197,6 @@ def get_top_rated_books(request):
             "min_upvote_review": (min_review.review, min_review.number_of_upvotes) if min_review else ("", 0),
         })
 
-    print("DATAA: ", data)
     return data
 
 
@@ -211,50 +221,54 @@ def top_rated_books(request):
 # for the author, and if the book was the on the top 5 selling 
 # books the year of its publication.
 def sale_statistics(request):
-    all_sales = Sale.objects.all()
-    total_sales_per_book = {}
-    sales_per_year = {}
+    # Obtener las ventas totales por libro en la base de datos usando agregación
+    total_sales_per_book = (
+        Sale.objects.values('book')
+        .annotate(total_sales=Sum('sales'))
+        .order_by('-total_sales')[:50]  # Solo los 50 libros más vendidos
+    )
+    
+    # Crear un diccionario para almacenar las ventas por autor
     sales_per_author = {}
-    for sale in all_sales:
-        if sale.book in total_sales_per_book:
-            total_sales_per_book[sale.book] += sale.sales
-        else:
-            total_sales_per_book[sale.book] = sale.sales
-        if sale.year in sales_per_year:
-            if sale.book.name in sales_per_year[sale.year]:
-                sales_per_year[sale.year][sale.book] += sale.sales
-            else:
-                sales_per_year[sale.year][sale.book] = sale.sales
-        else:
-            sales_per_year[sale.year] = {sale.book: sale.sales}
-    top_5_selling_books_per_year = {}
-    for year in sales_per_year:
-        sorted_sales_per_book_per_year = dict(sorted(sales_per_year[year].items(), key=lambda item: item[1], reverse=True))
-        for i, book in enumerate(sorted_sales_per_book_per_year):
-            if i < 5:
-                if year not in top_5_selling_books_per_year:
-                    top_5_selling_books_per_year[year] = [book]
-                else:
-                    top_5_selling_books_per_year[year].append(book)          
-    total_sales_per_book = dict(sorted(total_sales_per_book.items(), key=lambda item: item[1], reverse=True))
-    for book in total_sales_per_book:
+    for sale in total_sales_per_book:
+        book = Book.objects.get(pk=sale['book'])  # Obtener el objeto Book relacionado
         if book.author in sales_per_author:
-            sales_per_author[book.author] += total_sales_per_book[book]
+            sales_per_author[book.author] += sale['total_sales']
         else:
-            sales_per_author[book.author] = total_sales_per_book[book]
+            sales_per_author[book.author] = sale['total_sales']
+    
+    # Obtener las ventas por año para cada libro
+    sales_per_year = (
+        Sale.objects.values('book', 'year')
+        .annotate(yearly_sales=Sum('sales'))
+        .order_by('year', '-yearly_sales')
+    )
+    
+    # Crear un diccionario para almacenar los 5 libros más vendidos por año
+    top_5_selling_books_per_year = {}
+    for sale in sales_per_year:
+        year = sale['year']
+        book = Book.objects.get(pk=sale['book'])
+        if year not in top_5_selling_books_per_year:
+            top_5_selling_books_per_year[year] = [(book, sale['yearly_sales'])]
+        else:
+            if len(top_5_selling_books_per_year[year]) < 5:
+                top_5_selling_books_per_year[year].append((book, sale['yearly_sales']))
+
+    # Preparar las estadísticas para los 50 libros más vendidos
     top50_statistics = {}
-    for i, book in enumerate(total_sales_per_book):
-        if i < 50:
-            top50_statistics[book] = [total_sales_per_book[book], sales_per_author[book.author]]
-            year_of_publication = book.get_year_of_publishing()
-            if year_of_publication in top_5_selling_books_per_year:
-                if book in top_5_selling_books_per_year[year_of_publication]:
-                    top50_statistics[book].append(True)
-                else:
-                    top50_statistics[book].append(False)
-            else:
-                top50_statistics[book].append(False)
+    for sale in total_sales_per_book:
+        book = Book.objects.get(pk=sale['book'])  # Obtener el objeto Book relacionado
+        top50_statistics[book] = [
+            sale['total_sales'], 
+            sales_per_author.get(book.author, 0),
+        ]
+        year_of_publication = book.get_year_of_publishing()
+        is_top5_in_year = book in [b[0] for b in top_5_selling_books_per_year.get(year_of_publication, [])]
+        top50_statistics[book].append(is_top5_in_year)
+
     return render(request, 'sale_statistics.html', {'sales_statistics': top50_statistics})
+
 
 def search_window(request):
     return render(request, 'search_window.html', {'books_found': []})

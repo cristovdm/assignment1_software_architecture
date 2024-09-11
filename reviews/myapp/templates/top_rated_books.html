@@ -45,10 +45,10 @@
             <tbody>
                 {% for book in sorted_books %}
                 <tr>
-                    <td>{{ book.0 }}</td>
-                    <td>{{ book.1.average_score }}</td>
-                    <td>{{ book.1.max_upvote_review.0 }} <br><br> <strong>Number of upvotes: {{ book.1.max_upvote_review.1 }}</strong></td>
-                    <td>{{ book.1.min_upvote_review.0 }} <br><br> <strong>Number of upvotes: {{ book.1.min_upvote_review.1 }}</strong></td>
+                    <td>{{ book.book }}</td>
+                    <td>{{ book.average_score}}</td>
+                    <td>{{ book.max_upvote_review.0 }} <br><br> <strong>Number of upvotes: {{ book.max_upvote_review.1 }}</strong></td>
+                    <td>{{ book.min_upvote_review.0 }} <br><br> <strong>Number of upvotes: {{ book.min_upvote_review.1 }}</strong></td>
                 </tr>
                 {% endfor %}
             </tbody>

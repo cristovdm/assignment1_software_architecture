@@ -1,31 +1,38 @@
 import threading
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import connections
-from tenacity import retry, stop_after_attempt, wait_fixed
-import logging
+import os
 
-elasticsearch_connection = None  # Variable global para almacenar la conexión
+elasticsearch_connection = None
+
+USE_ELASTICSEARCH = os.getenv('USE_ELASTICSEARCH', False)
+
+if USE_ELASTICSEARCH == "false":
+    USE_ELASTICSEARCH = False
+if USE_ELASTICSEARCH == "true":
+    USE_ELASTICSEARCH = True
 
 def connect_to_elasticsearch():
     global elasticsearch_connection
-    if not elasticsearch_connection: 
-        connections.create_connection(
-            alias='default', 
-            hosts=['http://elasticsearch:9200'], 
-            http_auth=('elastic', 'SoftwareArchitecture2024'), 
-            verify_certs=False
-        )     
-        es = Elasticsearch(
-            ['http://elasticsearch:9200'],
-            http_auth=('elastic', 'SoftwareArchitecture2024'),
-            verify_certs=False
-        )
-        if es.ping():
-            elasticsearch_connection = es
-            print("Conectado a elasticsearch")
-        else:
-            elasticsearch_connection = None
-            print("No se pudo conectar")
+    if USE_ELASTICSEARCH:
+        if not elasticsearch_connection: 
+            connections.create_connection(
+                alias='default', 
+                hosts=['http://elasticsearch:9200'], 
+                http_auth=('elastic', 'SoftwareArchitecture2024'), 
+                verify_certs=False
+            )     
+            es = Elasticsearch(
+                ['http://elasticsearch:9200'],
+                http_auth=('elastic', 'SoftwareArchitecture2024'),
+                verify_certs=False
+            )
+            if es.ping():
+                elasticsearch_connection = es
+                print("Connected to elasticsearch")
+            else:
+                elasticsearch_connection = None
+                print("Couldn't connect to elasticsearch")
 
 
 # Esta función inicializa el hilo que conecta a Elasticsearch
